@@ -1845,6 +1845,18 @@ SOKOL_APP_API_DECL int sapp_get_num_dropped_files(void);
 /* gets the dropped file paths */
 SOKOL_APP_API_DECL const char* sapp_get_dropped_file_path(int index);
 
+#pragma region Granular Run API
+#ifdef SOKOL_NO_ENTRY
+// Note(Ed): Added these so that the user can have full control over lifetime/execution.
+
+SOKOL_APP_API_DECL bool sapp_get_quit_ordered();
+SOKOL_APP_API_DECL void sapp_pre_client_init( const sapp_desc* desc );
+SOKOL_APP_API_DECL void sapp_pre_client_frame(void);
+SOKOL_APP_API_DECL void sapp_post_client_frame(void);
+SOKOL_APP_API_DECL void sapp_post_client_cleanup(void);
+#endif // SOKOL_NO_ENTRY
+#pragma endregion Granular Run API
+
 /* special run-function for SOKOL_NO_ENTRY (in standard mode this is an empty stub) */
 SOKOL_APP_API_DECL void sapp_run(const sapp_desc* desc);
 
@@ -7943,8 +7955,8 @@ _SOKOL_PRIVATE bool _sapp_win32_is_win10_or_greater(void) {
     }
 }
 
-_SOKOL_PRIVATE void _sapp_win32_run(const sapp_desc* desc) {
-    _sapp_init_state(desc);
+_SOKOL_PRIVATE void _sapp_win32_pre_client_init(const sapp_desc* desc) {
+	_sapp_init_state(desc);
     _sapp_win32_init_console();
     _sapp.win32.is_win10_or_greater = _sapp_win32_is_win10_or_greater();
     _sapp_win32_init_keytable();
@@ -7963,50 +7975,52 @@ _SOKOL_PRIVATE void _sapp_win32_run(const sapp_desc* desc) {
         _sapp_wgl_create_context();
     #endif
     _sapp.valid = true;
+}
 
-    bool done = false;
-    while (!(done || _sapp.quit_ordered)) {
-        _sapp_win32_timing_measure();
-        MSG msg;
-        while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
-            if (WM_QUIT == msg.message) {
-                done = true;
-                continue;
-            }
-            else {
-                TranslateMessage(&msg);
-                DispatchMessageW(&msg);
-            }
-        }
-        _sapp_frame();
-        #if defined(SOKOL_D3D11)
-            _sapp_d3d11_present(false);
-            if (IsIconic(_sapp.win32.hwnd)) {
-                Sleep((DWORD)(16 * _sapp.swap_interval));
-            }
-        #endif
-        #if defined(SOKOL_GLCORE)
-            _sapp_wgl_swap_buffers();
-        #endif
-        /* check for window resized, this cannot happen in WM_SIZE as it explodes memory usage */
-        if (_sapp_win32_update_dimensions()) {
-            #if defined(SOKOL_D3D11)
-            _sapp_d3d11_resize_default_render_target();
-            #endif
-            _sapp_win32_app_event(SAPP_EVENTTYPE_RESIZED);
-        }
-        /* check if the window monitor has changed, need to reset timing because
-           the new monitor might have a different refresh rate
-        */
-        if (_sapp_win32_update_monitor()) {
-            _sapp_timing_reset(&_sapp.timing);
-        }
-        if (_sapp.quit_requested) {
-            PostMessage(_sapp.win32.hwnd, WM_CLOSE, 0, 0);
-        }
-    }
-    _sapp_call_cleanup();
+_SOKOL_PRIVATE void _sapp_win32_pre_client_frame(void) {
+	_sapp_win32_timing_measure();
+	MSG msg;
+	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (WM_QUIT == msg.message) {
+			done = true;
+			continue;
+		}
+		else {
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
+	}
+}
 
+_SOKOL_PRIVATE void _sapp_win32_post_client_frame(void) {
+	#if defined(SOKOL_D3D11)
+	_sapp_d3d11_present(false);
+		if (IsIconic(_sapp.win32.hwnd)) {
+			Sleep((DWORD)(16 * _sapp.swap_interval));
+		}
+	#endif
+	#if defined(SOKOL_GLCORE)
+		_sapp_wgl_swap_buffers();
+	#endif
+	/* check for window resized, this cannot happen in WM_SIZE as it explodes memory usage */
+	if (_sapp_win32_update_dimensions()) {
+		#if defined(SOKOL_D3D11)
+		_sapp_d3d11_resize_default_render_target();
+		#endif
+		_sapp_win32_app_event(SAPP_EVENTTYPE_RESIZED);
+	}
+	/* check if the window monitor has changed, need to reset timing because
+	the new monitor might have a different refresh rate
+	*/
+	if (_sapp_win32_update_monitor()) {
+		_sapp_timing_reset(&_sapp.timing);
+	}
+	if (_sapp.quit_requested) {
+		PostMessage(_sapp.win32.hwnd, WM_CLOSE, 0, 0);
+	}
+}
+
+_SOKOL_PRIVATE void _sapp_win32_post_client_cleanup(void) {
     #if defined(SOKOL_D3D11)
         _sapp_d3d11_destroy_default_render_target();
         _sapp_d3d11_destroy_device_and_swapchain();
@@ -8018,6 +8032,21 @@ _SOKOL_PRIVATE void _sapp_win32_run(const sapp_desc* desc) {
     _sapp_win32_destroy_icons();
     _sapp_win32_restore_console();
     _sapp_discard_state();
+}
+
+_SOKOL_PRIVATE void _sapp_win32_run() {
+	_sapp_win32_pre_client_init(desc);
+
+    bool done = false;
+    while (!(done || _sapp.quit_ordered)) {
+		_sapp_win32_pre_client_frame();
+	
+        _sapp_frame();
+		
+		_sapp_win32_post_client_frame();
+    }
+    _sapp_call_cleanup();
+	_sapp_win32_post_client_cleanup();
 }
 
 _SOKOL_PRIVATE char** _sapp_win32_command_line_to_utf8_argv(LPWSTR w_command_line, int* o_argc) {
@@ -11207,6 +11236,49 @@ int main(int argc, char* argv[]) {
 //
 // >>public
 #if defined(SOKOL_NO_ENTRY)
+
+#pragma region Granular Run API
+SOKOL_APP_IMPL bool sapp_get_quit_ordered() {
+	return _sapp.quit_ordered
+}
+
+SOKOL_API_IMPL void sapp_pre_client_init(const sapp_desc* desc) {
+	SOKOL_ASSERT(desc);
+	#if defined(_SAPP_WIN32)
+		_sapp_win32_pre_client_init(desc);
+	#else
+	#error "sapp_pre_client_init() not supported on this platform"
+	#endif
+}
+
+SOKOL_API_IMPL void sapp_pre_client_frame(void) {
+	SOKOL_ASSERT(desc);
+    #if defined(_SAPP_WIN32)
+		_sapp_win32_pre_client_frame();
+	#else
+	#error "sapp_pre_client_init() not supported on this platform"
+	#endif
+}
+
+SOKOL_API_IMPL void sapp_post_client_frame(void) {
+	SOKOL_ASSERT(desc);
+    #if defined(_SAPP_WIN32)
+		_sapp_win32_post_client_frame();
+	#else
+	#error "sapp_pre_client_init() not supported on this platform"
+	#endif
+}
+
+SOKOL_API_IMPL void sapp_post_client_cleanup(void) {
+	SOKOL_ASSERT(desc);
+    #if defined(_SAPP_WIN32)
+		_sapp_win32_post_client_cleanup();
+	#else
+	#error "sapp_pre_client_init() not supported on this platform"
+	#endif
+}
+#pragma endregion Granular Run API
+
 SOKOL_API_IMPL void sapp_run(const sapp_desc* desc) {
     SOKOL_ASSERT(desc);
     #if defined(_SAPP_MACOS)
