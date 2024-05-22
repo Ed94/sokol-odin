@@ -1851,7 +1851,7 @@ SOKOL_APP_API_DECL const char* sapp_get_dropped_file_path(int index);
 
 SOKOL_APP_API_DECL bool sapp_get_quit_ordered();
 SOKOL_APP_API_DECL void sapp_pre_client_init( const sapp_desc* desc );
-SOKOL_APP_API_DECL void sapp_pre_client_frame(void);
+SOKOL_APP_API_DECL bool sapp_pre_client_frame(void);
 SOKOL_APP_API_DECL void sapp_post_client_frame(void);
 SOKOL_APP_API_DECL void sapp_post_client_cleanup(void);
 #endif // SOKOL_NO_ENTRY
@@ -7977,7 +7977,8 @@ _SOKOL_PRIVATE void _sapp_win32_pre_client_init(const sapp_desc* desc) {
     _sapp.valid = true;
 }
 
-_SOKOL_PRIVATE void _sapp_win32_pre_client_frame(void) {
+_SOKOL_PRIVATE bool _sapp_win32_pre_client_frame(void) {
+	bool done = false;
 	_sapp_win32_timing_measure();
 	MSG msg;
 	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -7990,6 +7991,7 @@ _SOKOL_PRIVATE void _sapp_win32_pre_client_frame(void) {
 			DispatchMessageW(&msg);
 		}
 	}
+	return done;
 }
 
 _SOKOL_PRIVATE void _sapp_win32_post_client_frame(void) {
@@ -8039,7 +8041,7 @@ _SOKOL_PRIVATE void _sapp_win32_run() {
 
     bool done = false;
     while (!(done || _sapp.quit_ordered)) {
-		_sapp_win32_pre_client_frame();
+		done = _sapp_win32_pre_client_frame();
 	
         _sapp_frame();
 		
@@ -11238,8 +11240,8 @@ int main(int argc, char* argv[]) {
 #if defined(SOKOL_NO_ENTRY)
 
 #pragma region Granular Run API
-SOKOL_APP_IMPL bool sapp_get_quit_ordered() {
-	return _sapp.quit_ordered
+SOKOL_API_IMPL bool sapp_get_quit_ordered() {
+	return _sapp.quit_ordered;
 }
 
 SOKOL_API_IMPL void sapp_pre_client_init(const sapp_desc* desc) {
@@ -11251,17 +11253,15 @@ SOKOL_API_IMPL void sapp_pre_client_init(const sapp_desc* desc) {
 	#endif
 }
 
-SOKOL_API_IMPL void sapp_pre_client_frame(void) {
-	SOKOL_ASSERT(desc);
+SOKOL_API_IMPL bool sapp_pre_client_frame(void) {
     #if defined(_SAPP_WIN32)
-		_sapp_win32_pre_client_frame();
+		return _sapp_win32_pre_client_frame();
 	#else
 	#error "sapp_pre_client_init() not supported on this platform"
 	#endif
 }
 
 SOKOL_API_IMPL void sapp_post_client_frame(void) {
-	SOKOL_ASSERT(desc);
     #if defined(_SAPP_WIN32)
 		_sapp_win32_post_client_frame();
 	#else
@@ -11270,7 +11270,6 @@ SOKOL_API_IMPL void sapp_post_client_frame(void) {
 }
 
 SOKOL_API_IMPL void sapp_post_client_cleanup(void) {
-	SOKOL_ASSERT(desc);
     #if defined(_SAPP_WIN32)
 		_sapp_win32_post_client_cleanup();
 	#else
