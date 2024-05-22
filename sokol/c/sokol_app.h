@@ -8036,7 +8036,7 @@ _SOKOL_PRIVATE void _sapp_win32_post_client_cleanup(void) {
     _sapp_discard_state();
 }
 
-_SOKOL_PRIVATE void _sapp_win32_run() {
+_SOKOL_PRIVATE void _sapp_win32_run( const sapp_desc* desc ) {
 	_sapp_win32_pre_client_init(desc);
 
     bool done = false;
