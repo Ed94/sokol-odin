@@ -100,7 +100,15 @@ foreign sokol_app_clib {
     set_icon :: proc(#by_ptr icon_desc: Icon_Desc)  ---
     get_num_dropped_files :: proc() -> c.int ---
     get_dropped_file_path :: proc(#any_int index: c.int) -> cstring ---
+
+    get_quit_ordered :: proc() -> bool ---
+    pre_client_init :: proc( #by_ptr desc : Desc ) ---
+    pre_client_frame :: proc() ---
+    post_client_frame :: proc() ---
+    post_client_cleanup :: proc() ---
+
     run :: proc(#by_ptr desc: Desc)  ---
+
     egl_get_display :: proc() -> rawptr ---
     egl_get_context :: proc() -> rawptr ---
     html5_ask_leave_site :: proc(ask: bool)  ---
