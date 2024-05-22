@@ -1845,17 +1845,18 @@ SOKOL_APP_API_DECL int sapp_get_num_dropped_files(void);
 /* gets the dropped file paths */
 SOKOL_APP_API_DECL const char* sapp_get_dropped_file_path(int index);
 
-#pragma region Granular Run API
+#pragma region Manaual Execution API
 #ifdef SOKOL_NO_ENTRY
 // Note(Ed): Added these so that the user can have full control over lifetime/execution.
 
 SOKOL_APP_API_DECL bool sapp_get_quit_ordered();
 SOKOL_APP_API_DECL void sapp_pre_client_init( const sapp_desc* desc );
+SOKOL_APP_API_DECL void sapp_client_init(void);
 SOKOL_APP_API_DECL bool sapp_pre_client_frame(void);
 SOKOL_APP_API_DECL void sapp_post_client_frame(void);
 SOKOL_APP_API_DECL void sapp_post_client_cleanup(void);
 #endif // SOKOL_NO_ENTRY
-#pragma endregion Granular Run API
+#pragma endregion Manual Execution API
 
 /* special run-function for SOKOL_NO_ENTRY (in standard mode this is an empty stub) */
 SOKOL_APP_API_DECL void sapp_run(const sapp_desc* desc);
@@ -11239,7 +11240,7 @@ int main(int argc, char* argv[]) {
 // >>public
 #if defined(SOKOL_NO_ENTRY)
 
-#pragma region Granular Run API
+#pragma region Manual Execution API
 SOKOL_API_IMPL bool sapp_get_quit_ordered() {
 	return _sapp.quit_ordered;
 }
@@ -11261,6 +11262,14 @@ SOKOL_API_IMPL bool sapp_pre_client_frame(void) {
 	#endif
 }
 
+SOKOL_API_IMPL void sapp_client_init(void) {
+    #if defined(_SAPP_WIN32)
+		_sapp_call_init();
+	#else
+	#error "sapp_pre_client_init() not supported on this platform"
+	#endif
+}
+
 SOKOL_API_IMPL void sapp_post_client_frame(void) {
     #if defined(_SAPP_WIN32)
 		_sapp_win32_post_client_frame();
@@ -11276,7 +11285,7 @@ SOKOL_API_IMPL void sapp_post_client_cleanup(void) {
 	#error "sapp_pre_client_init() not supported on this platform"
 	#endif
 }
-#pragma endregion Granular Run API
+#pragma endregion Manual Execution API
 
 SOKOL_API_IMPL void sapp_run(const sapp_desc* desc) {
     SOKOL_ASSERT(desc);

@@ -104,6 +104,7 @@ foreign sokol_app_clib {
     get_quit_ordered :: proc() -> bool ---
     pre_client_init :: proc( #by_ptr desc : Desc ) ---
     pre_client_frame :: proc() ---
+	client_init :: proc() ---
     post_client_frame :: proc() ---
     post_client_cleanup :: proc() ---
 
