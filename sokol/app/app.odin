@@ -74,6 +74,7 @@ foreign sokol_app_clib {
     color_format :: proc() -> c.int ---
     depth_format :: proc() -> c.int ---
     sample_count :: proc() -> c.int ---
+	refresh_rate :: proc() -> c.int ---
     high_dpi :: proc() -> bool ---
     dpi_scale :: proc() -> f32 ---
     show_keyboard :: proc(show: bool)  ---
@@ -94,6 +95,7 @@ foreign sokol_app_clib {
     consume_event :: proc()  ---
     frame_count :: proc() -> u64 ---
     frame_duration :: proc() -> f64 ---
+	frame_delta :: proc() -> f64 ---
     set_clipboard_string :: proc(str: cstring)  ---
     get_clipboard_string :: proc() -> cstring ---
     set_window_title :: proc(str: cstring)  ---
@@ -168,6 +170,7 @@ Event_Type :: enum i32 {
     QUIT_REQUESTED,
     CLIPBOARD_PASTED,
     FILES_DROPPED,
+	DISPLAY_CHANGED,
 }
 
 Keycode :: enum i32 {

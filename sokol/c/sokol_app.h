@@ -1242,6 +1242,7 @@ typedef enum sapp_event_type {
     SAPP_EVENTTYPE_QUIT_REQUESTED,
     SAPP_EVENTTYPE_CLIPBOARD_PASTED,
     SAPP_EVENTTYPE_FILES_DROPPED,
+    SAPP_EVENTTYPE_DISPLAY_CHANGED,
     _SAPP_EVENTTYPE_NUM,
     _SAPP_EVENTTYPE_FORCE_U32 = 0x7FFFFFFF
 } sapp_event_type;
@@ -1792,6 +1793,8 @@ SOKOL_APP_API_DECL int sapp_color_format(void);
 SOKOL_APP_API_DECL int sapp_depth_format(void);
 /* get default framebuffer sample count */
 SOKOL_APP_API_DECL int sapp_sample_count(void);
+/* get the display's refresh rate */
+SOKOL_APP_API_DECL int sapp_refresh_rate(void);
 /* returns true when high_dpi was requested and actually running in a high-dpi scenario */
 SOKOL_APP_API_DECL bool sapp_high_dpi(void);
 /* returns the dpi scaling factor (window pixels to framebuffer pixels) */
@@ -1832,6 +1835,8 @@ SOKOL_APP_API_DECL void sapp_consume_event(void);
 SOKOL_APP_API_DECL uint64_t sapp_frame_count(void);
 /* get an averaged/smoothed frame duration in seconds */
 SOKOL_APP_API_DECL double sapp_frame_duration(void);
+/* get the last frame delta duration (non-average) in seconds */
+SOKOL_APP_API_DECL double sapp_frame_delta(void);
 /* write string into clipboard */
 SOKOL_APP_API_DECL void sapp_set_clipboard_string(const char* str);
 /* read string from clipboard (usually during SAPP_EVENTTYPE_CLIPBOARD_PASTED) */
@@ -2878,6 +2883,7 @@ typedef struct {
     int framebuffer_height;
     int sample_count;
     int swap_interval;
+    int refresh_rate;
     float dpi_scale;
     uint64_t frame_count;
     _sapp_timing_t timing;
@@ -7172,6 +7178,16 @@ _SOKOL_PRIVATE bool _sapp_win32_update_monitor(void) {
     const HMONITOR cur_monitor = MonitorFromWindow(_sapp.win32.hwnd, MONITOR_DEFAULTTONULL);
     if (cur_monitor != _sapp.win32.hmonitor) {
         _sapp.win32.hmonitor = cur_monitor;
+
+        MONITORINFOEXA monitor_info_ex = {0};
+        monitor_info_ex.cbSize = sizeof(MONITORINFOEXA);
+        if (GetMonitorInfo(cur_monitor, (LPMONITORINFO) & monitor_info_ex)) {
+            DEVMODEA dev_mode = {0};
+            dev_mode.dmSize = sizeof(DEVMODEA);
+            if (EnumDisplaySettings(monitor_info_ex.szDevice, ENUM_CURRENT_SETTINGS, & dev_mode)) {
+                _sapp.refresh_rate = dev_mode.dmDisplayFrequency;
+            }
+        }
         return true;
     }
     else {
@@ -7552,7 +7568,9 @@ _SOKOL_PRIVATE LRESULT CALLBACK _sapp_win32_wndproc(HWND hWnd, UINT uMsg, WPARAM
                 break;
             case WM_TIMER:
                 _sapp_win32_timing_measure();
+
                 _sapp_frame();
+
                 #if defined(SOKOL_D3D11)
                     // present with DXGI_PRESENT_DO_NOT_WAIT
                     _sapp_d3d11_present(true);
@@ -7587,7 +7605,10 @@ _SOKOL_PRIVATE LRESULT CALLBACK _sapp_win32_wndproc(HWND hWnd, UINT uMsg, WPARAM
                 break;
             case WM_DISPLAYCHANGE:
                 // refresh rate might have changed
-                _sapp_timing_reset(&_sapp.timing);
+            	if (_sapp_win32_update_monitor()) {
+	                _sapp_timing_reset(&_sapp.timing);
+	                _sapp_win32_app_event(SAPP_EVENTTYPE_DISPLAY_CHANGED);
+            	}
                 break;
 
             default:
@@ -7638,7 +7659,17 @@ _SOKOL_PRIVATE void _sapp_win32_create_window(void) {
         NULL);                      // lParam
     _sapp.win32.in_create_window = false;
     _sapp.win32.dc = GetDC(_sapp.win32.hwnd);
-    _sapp.win32.hmonitor = MonitorFromWindow(_sapp.win32.hwnd, MONITOR_DEFAULTTONULL);
+    _sapp.win32.hmonitor = MonitorFromWindow(_sapp.win32.hwnd, MONITOR_DEFAULTTONULL); {
+       	MONITORINFOEXA monitor_info_ex = {0};
+       	monitor_info_ex.cbSize = sizeof(MONITORINFOEXA);
+       	if (GetMonitorInfo(_sapp.win32.hmonitor, (LPMONITORINFO) & monitor_info_ex)) {
+       	    DEVMODEA dev_mode = {0};
+       	    dev_mode.dmSize = sizeof(DEVMODEA);
+       	    if (EnumDisplaySettings(monitor_info_ex.szDevice, ENUM_CURRENT_SETTINGS, & dev_mode)) {
+       	        _sapp.refresh_rate = dev_mode.dmDisplayFrequency;
+       	    }
+       	}
+    }
     SOKOL_ASSERT(_sapp.win32.dc);
 
     /* this will get the actual windowed-mode window size, if fullscreen
@@ -8017,6 +8048,7 @@ _SOKOL_PRIVATE void _sapp_win32_post_client_frame(void) {
 	*/
 	if (_sapp_win32_update_monitor()) {
 		_sapp_timing_reset(&_sapp.timing);
+		_sapp_win32_app_event(SAPP_EVENTTYPE_DISPLAY_CHANGED);
 	}
 	if (_sapp.quit_requested) {
 		PostMessage(_sapp.win32.hwnd, WM_CLOSE, 0, 0);
@@ -8043,9 +8075,9 @@ _SOKOL_PRIVATE void _sapp_win32_run( const sapp_desc* desc ) {
     bool done = false;
     while (!(done || _sapp.quit_ordered)) {
 		done = _sapp_win32_pre_client_frame();
-	
+
         _sapp_frame();
-		
+
 		_sapp_win32_post_client_frame();
     }
     _sapp_call_cleanup();
@@ -11241,7 +11273,7 @@ int main(int argc, char* argv[]) {
 #if defined(SOKOL_NO_ENTRY)
 
 #pragma region Manual Execution API
-SOKOL_API_IMPL bool sapp_get_quit_ordered() {
+SOKOL_API_IMPL bool sapp_get_quit_ordered(void) {
 	return _sapp.quit_ordered;
 }
 
@@ -11265,6 +11297,7 @@ SOKOL_API_IMPL bool sapp_pre_client_frame(void) {
 SOKOL_API_IMPL void sapp_client_init(void) {
     #if defined(_SAPP_WIN32)
 		_sapp_call_init();
+		_sapp.first_frame = false;
 	#else
 	#error "sapp_pre_client_init() not supported on this platform"
 	#endif
@@ -11339,6 +11372,10 @@ SOKOL_API_IMPL double sapp_frame_duration(void) {
     return _sapp_timing_get_avg(&_sapp.timing);
 }
 
+SOKOL_API_IMPL double sapp_frame_delta(void) {
+	return _sapp.timing.last;
+}
+
 SOKOL_API_IMPL int sapp_width(void) {
     return (_sapp.framebuffer_width > 0) ? _sapp.framebuffer_width : 1;
 }
@@ -11379,6 +11416,10 @@ SOKOL_API_IMPL int sapp_depth_format(void) {
 
 SOKOL_API_IMPL int sapp_sample_count(void) {
     return _sapp.sample_count;
+}
+
+SOKOL_APP_IMPL int sapp_refresh_rate(void) {
+	return _sapp.refresh_rate;
 }
 
 SOKOL_API_IMPL bool sapp_high_dpi(void) {
