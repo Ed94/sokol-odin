@@ -41,6 +41,7 @@
 		</AdditionalIncludePaths>
 		<Defines>
 			<Define>SOKOL_APP_IMPL</Define>
+			<Define>SOKOL_GFX_IMPL</Define>
 		</Defines>
 		<ConfigProperties>
 			<ConfigAndPlatform>

@@ -4013,7 +4013,7 @@ typedef struct sg_desc_reload
 {
 	sg_allocator allocator;
     sg_logger logger; // optional log function override
-}
+} sg_desc_reload;
 
 SOKOL_GFX_API_DECL void sg_client_reload( const sg_desc_reload* reload_desc );
 
