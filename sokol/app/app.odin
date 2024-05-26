@@ -109,6 +109,7 @@ foreign sokol_app_clib {
 	client_init :: proc() ---
     post_client_frame :: proc() ---
     post_client_cleanup :: proc() ---
+	client_reload :: proc( #by_ptr reload-desc : DescReload )
 
     run :: proc(#by_ptr desc: Desc)  ---
 
@@ -475,6 +476,20 @@ Log_Item :: enum i32 {
 Logger :: struct {
     func : proc "c" (a0: cstring, a1: u32, a2: u32, a3: cstring, a4: u32, a5: cstring, a6: rawptr),
     user_data : rawptr,
+}
+
+DescReload :: struct {
+ init_cb : proc "c" (),
+    frame_cb : proc "c" (),
+    cleanup_cb : proc "c" (),
+    event_cb : proc "c" (a0: ^Event),
+    user_data : rawptr,
+    init_userdata_cb : proc "c" (a0: rawptr),
+    frame_userdata_cb : proc "c" (a0: rawptr),
+    cleanup_userdata_cb : proc "c" (a0: rawptr),
+    event_userdata_cb : proc "c" (a0: ^Event, a1: rawptr),
+	allocator : Allocator,
+    logger : Logger,
 }
 
 Desc :: struct {

@@ -1679,6 +1679,22 @@ typedef struct sapp_logger {
     void* user_data;
 } sapp_logger;
 
+typedef struct sapp_desc_reload {
+    void (*init_cb)(void);                  // these are the user-provided callbacks without user data
+    void (*frame_cb)(void);
+    void (*cleanup_cb)(void);
+    void (*event_cb)(const sapp_event*);
+
+    void* user_data;                        // these are the user-provided callbacks with user data
+    void (*init_userdata_cb)(void*);
+    void (*frame_userdata_cb)(void*);
+    void (*cleanup_userdata_cb)(void*);
+    void (*event_userdata_cb)(const sapp_event*, void*);
+	
+	sapp_allocator allocator;
+	sapp_logger    logger;
+} sapp_desc_reload;
+
 typedef struct sapp_desc {
     void (*init_cb)(void);                  // these are the user-provided callbacks without user data
     void (*frame_cb)(void);
@@ -1860,6 +1876,8 @@ SOKOL_APP_API_DECL void sapp_client_init(void);
 SOKOL_APP_API_DECL bool sapp_pre_client_frame(void);
 SOKOL_APP_API_DECL void sapp_post_client_frame(void);
 SOKOL_APP_API_DECL void sapp_post_client_cleanup(void);
+SOKOL_APP_API_DECL void sapp_client_reload( const sapp_desc_reload* new_callbacks);
+
 #endif // SOKOL_NO_ENTRY
 #pragma endregion Manual Execution API
 
@@ -11317,6 +11335,22 @@ SOKOL_API_IMPL void sapp_post_client_cleanup(void) {
 	#else
 	#error "sapp_pre_client_init() not supported on this platform"
 	#endif
+}
+
+SOKOL_APP_IMPL void sapp_client_reload( const sapp_desc_reload* reload_desc )
+{
+	_sapp.desc.init_cb    = reload_desc->init_cb;
+	_sapp.desc.frame_cb   = reload_desc->frame_cb;
+	_sapp.desc.cleanup_cb = reload_desc->cleanup_cb;
+	_sapp.desc.event_cb   = reload_desc->event_cb;
+	
+	_sapp.desc.init_userdata_cb    = reload_desc->init_userdata_cb;
+	_sapp.desc.frame_userdata_cb   = reload_desc->frame_userdata_cb;
+	_sapp.desc.cleanup_userdata_cb = reload_desc->cleanup_userdata_cb;
+	_sapp.desc.event_userdata_cb   = reload_desc->event_userdata_cb;
+	
+	_sapp.desc.allocator  = reload_desc->allocator;
+	_sapp.desc.logger     = reload_desc->logger;
 }
 #pragma endregion Manual Execution API
 
