@@ -11339,6 +11339,7 @@ SOKOL_API_IMPL void sapp_post_client_cleanup(void) {
 
 SOKOL_APP_IMPL void sapp_client_reload( const sapp_desc_reload* reload_desc )
 {
+	SOKOL_ASSERT(reload_desc);
 	_sapp.desc.init_cb    = reload_desc->init_cb;
 	_sapp.desc.frame_cb   = reload_desc->frame_cb;
 	_sapp.desc.cleanup_cb = reload_desc->cleanup_cb;

@@ -4009,6 +4009,14 @@ typedef struct sg_desc {
     uint32_t _end_canary;
 } sg_desc;
 
+typedef struct sg_desc_reload
+{
+	sg_allocator allocator;
+    sg_logger logger; // optional log function override
+}
+
+SOKOL_GFX_API_DECL void sg_client_reload( const sg_desc_reload* reload_desc );
+
 // setup and misc functions
 SOKOL_GFX_API_DECL void sg_setup(const sg_desc* desc);
 SOKOL_GFX_API_DECL void sg_shutdown(void);
@@ -17572,6 +17580,13 @@ _SOKOL_PRIVATE sg_pass _sg_pass_defaults(const sg_pass* pass) {
 // ██       ██████  ██████  ███████ ██  ██████
 //
 // >>public
+
+SOKOL_API_IMPL void sg_client_reload( const sg_desc_reload* reload_desc ) {
+    SOKOL_ASSERT(reload_desc);
+	_sg.desc.allocator = reload_desc->allocator;
+	_sg.desc.logger    = reload_desc->logger;
+}
+
 SOKOL_API_IMPL void sg_setup(const sg_desc* desc) {
     SOKOL_ASSERT(desc);
     SOKOL_ASSERT((desc->_start_canary == 0) && (desc->_end_canary == 0));

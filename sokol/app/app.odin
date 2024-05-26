@@ -109,7 +109,7 @@ foreign sokol_app_clib {
 	client_init :: proc() ---
     post_client_frame :: proc() ---
     post_client_cleanup :: proc() ---
-	client_reload :: proc( #by_ptr reload-desc : DescReload )
+	client_reload :: proc( #by_ptr reload_desc : DescReload ) ---
 
     run :: proc(#by_ptr desc: Desc)  ---
 

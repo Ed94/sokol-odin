@@ -66,6 +66,8 @@ when ODIN_OS == .Windows {
 
 @(default_calling_convention="c", link_prefix="sg_")
 foreign sokol_gfx_clib {
+	client_reload :: proc( #by_ptr reload_desc : DescReload ) ---
+	
     setup :: proc(#by_ptr desc: Desc)  ---
     shutdown :: proc()  ---
     isvalid :: proc() -> bool ---
@@ -1434,6 +1436,11 @@ Allocator :: struct {
 Logger :: struct {
     func : proc "c" (a0: cstring, a1: u32, a2: u32, a3: cstring, a4: u32, a5: cstring, a6: rawptr),
     user_data : rawptr,
+}
+
+DescReload :: struct {
+	allocator : Allocator,
+    logger : Logger,
 }
 
 Desc :: struct {
