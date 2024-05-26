@@ -15,7 +15,7 @@ SOKOL_DEBUG :: #config(SOKOL_DEBUG, ODIN_DEBUG)
 
 DEBUG :: #config(SOKOL_DEBUGTEXT_DEBUG, SOKOL_DEBUG)
 USE_GL :: #config(SOKOL_USE_GL, false)
-USE_DLL :: #config(SOKOL_DLL, false)
+USE_DLL :: #config(SOKOL_DLL, true)
 
 when ODIN_OS == .Windows {
     when USE_DLL {
