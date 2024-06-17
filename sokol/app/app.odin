@@ -327,6 +327,12 @@ MODIFIER_SUPER :: 8
 MODIFIER_LMB :: 256
 MODIFIER_RMB :: 512
 MODIFIER_MMB :: 1024
+MODIFIER_LSHIFT :: 0x800,    // left shift key
+MODIFIER_RSHIFT :: 0x1000,   // right shift key
+MODIFIER_LCTRL  :: 0x2000,   // left control key
+MODIFIER_RCTRL  :: 0x4000,   // right control key
+MODIFIER_LALT   :: 0x8000,   // left alt key
+MODIFIER_RALT   :: 0x10000,  // right alt key
 
 Event :: struct {
     frame_count : u64,

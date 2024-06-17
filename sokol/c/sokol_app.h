@@ -1438,7 +1438,14 @@ enum {
     SAPP_MODIFIER_LMB   = 0x100,    // left mouse button
     SAPP_MODIFIER_RMB   = 0x200,    // right mouse button
     SAPP_MODIFIER_MMB   = 0x400,    // middle mouse button
+	SAPP_MODIFIER_LSHIFT  = 0x800,    // left shift key
+    SAPP_MODIFIER_RSHIFT  = 0x1000,   // right shift key
+    SAPP_MODIFIER_LCTRL   = 0x2000,   // left control key
+    SAPP_MODIFIER_RCTRL   = 0x4000,   // right control key
+    SAPP_MODIFIER_LALT    = 0x8000,   // left alt key
+    SAPP_MODIFIER_RALT    = 0x10000,  // right alt key
 };
+
 
 /*
     sapp_event
@@ -7214,6 +7221,25 @@ _SOKOL_PRIVATE bool _sapp_win32_update_monitor(void) {
 
 _SOKOL_PRIVATE uint32_t _sapp_win32_mods(void) {
     uint32_t mods = 0;
+	if (GetKeyState(VK_LSHIFT) & (1<<15)) {
+		mods |= SAPP_MODIFIER_LSHIFT;
+	}
+	if (GetKeyState(VK_RSHIFT) & (1<<15)) {
+		mods |= SAPP_MODIFIER_RSHIFT;
+	}
+	if (GetKeyState(VK_LCONTROL) & (1<<15)) {
+		mods |= SAPP_MODIFIER_LCTRL;
+	}
+	if (GetKeyState(VK_RCONTROL) & (1<<15)) {
+		mods |= SAPP_MODIFIER_RCTRL;
+	}
+	if (GetKeyState(VK_LMENU) & (1<<15)) {
+		mods |= SAPP_MODIFIER_LALT;
+	}
+	if (GetKeyState(VK_RMENU) & (1<<15)) {
+		mods |= SAPP_MODIFIER_RALT;
+	}
+	
     if (GetKeyState(VK_SHIFT) & (1<<15)) {
         mods |= SAPP_MODIFIER_SHIFT;
     }
