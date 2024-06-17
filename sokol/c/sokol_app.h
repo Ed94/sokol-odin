@@ -3249,7 +3249,6 @@ _SOKOL_PRIVATE void _sapp_frame(void) {
         _sapp_call_init();
     }
     _sapp_call_frame();
-    _sapp.frame_count++;
 }
 
 _SOKOL_PRIVATE bool _sapp_image_validate(const sapp_image_desc* desc) {
@@ -7588,6 +7587,7 @@ _SOKOL_PRIVATE LRESULT CALLBACK _sapp_win32_wndproc(HWND hWnd, UINT uMsg, WPARAM
                 _sapp_win32_timing_measure();
 
                 _sapp_frame();
+				_sapp.frame_count++;
 
                 #if defined(SOKOL_D3D11)
                     // present with DXGI_PRESENT_DO_NOT_WAIT
@@ -8071,6 +8071,8 @@ _SOKOL_PRIVATE void _sapp_win32_post_client_frame(void) {
 	if (_sapp.quit_requested) {
 		PostMessage(_sapp.win32.hwnd, WM_CLOSE, 0, 0);
 	}
+	
+	_sapp.frame_count++;
 }
 
 _SOKOL_PRIVATE void _sapp_win32_post_client_cleanup(void) {
