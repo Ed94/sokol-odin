@@ -2357,6 +2357,7 @@ _SOKOL_PRIVATE double _sapp_timestamp_now(_sapp_timestamp_t* ts) {
 }
 
 typedef struct {
+	double last_delta;
     double last;
     double accum;
     double avg;
@@ -2428,6 +2429,7 @@ _SOKOL_PRIVATE void _sapp_timing_external(_sapp_timing_t* t, double now) {
     if (t->last > 0.0) {
         double dur = now - t->last;
         _sapp_timing_put(t, dur);
+		t->last_delta = dur;
     }
     t->last = now;
 }
@@ -11436,7 +11438,7 @@ SOKOL_API_IMPL double sapp_frame_duration(void) {
 }
 
 SOKOL_API_IMPL double sapp_frame_delta(void) {
-	return _sapp.timing.last;
+	return _sapp.timing.last_delta;
 }
 
 SOKOL_API_IMPL int sapp_width(void) {
