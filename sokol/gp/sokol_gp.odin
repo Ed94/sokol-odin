@@ -20,11 +20,11 @@ when ODIN_OS == .Windows {
         }
     } else {
         when USE_GL {
-            when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_windows_x64_gl_debug.lib" } }
-            else       { foreign import sokol_gp_clib { "sokol_gfx_windows_x64_gl_release.lib" } }
+            when DEBUG { foreign import sokol_gp_clib { "sokol_gp_windows_x64_gl_debug.lib" } }
+            else       { foreign import sokol_gp_clib { "sokol_gp_windows_x64_gl_release.lib" } }
         } else {
-            when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_windows_x64_d3d11_debug.lib" } }
-            else       { foreign import sokol_gp_clib { "sokol_gfx_windows_x64_d3d11_release.lib" } }
+            when DEBUG { foreign import sokol_gp_clib { "sokol_gp_windows_x64_d3d11_debug.lib" } }
+            else       { foreign import sokol_gp_clib { "sokol_gp_windows_x64_d3d11_release.lib" } }
         }
     }
 } else when ODIN_OS == .Darwin {
@@ -40,25 +40,25 @@ when ODIN_OS == .Windows {
     } else {
         when USE_GL {
             when ODIN_ARCH == .arm64 {
-                when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_macos_arm64_gl_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
-                else       { foreign import sokol_gp_clib { "sokol_gfx_macos_arm64_gl_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
+                when DEBUG { foreign import sokol_gp_clib { "sokol_gp_macos_arm64_gl_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
+                else       { foreign import sokol_gp_clib { "sokol_gp_macos_arm64_gl_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
             } else {
-                when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_macos_x64_gl_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
-                else       { foreign import sokol_gp_clib { "sokol_gfx_macos_x64_gl_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
+                when DEBUG { foreign import sokol_gp_clib { "sokol_gp_macos_x64_gl_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
+                else       { foreign import sokol_gp_clib { "sokol_gp_macos_x64_gl_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:OpenGL.framework" } }
             }
         } else {
             when ODIN_ARCH == .arm64 {
-                when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_macos_arm64_metal_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
-                else       { foreign import sokol_gp_clib { "sokol_gfx_macos_arm64_metal_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
+                when DEBUG { foreign import sokol_gp_clib { "sokol_gp_macos_arm64_metal_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
+                else       { foreign import sokol_gp_clib { "sokol_gp_macos_arm64_metal_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
             } else {
-                when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_macos_x64_metal_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
-                else       { foreign import sokol_gp_clib { "sokol_gfx_macos_x64_metal_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
+                when DEBUG { foreign import sokol_gp_clib { "sokol_gp_macos_x64_metal_debug.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
+                else       { foreign import sokol_gp_clib { "sokol_gp_macos_x64_metal_release.a", "system:Cocoa.framework","system:QuartzCore.framework","system:Metal.framework","system:MetalKit.framework" } }
             }
         }
     }
 } else when ODIN_OS == .Linux {
-    when DEBUG { foreign import sokol_gp_clib { "sokol_gfx_linux_x64_gl_debug.a", "system:GL", "system:dl", "system:pthread" } }
-    else       { foreign import sokol_gp_clib { "sokol_gfx_linux_x64_gl_release.a", "system:GL", "system:dl", "system:pthread" } }
+    when DEBUG { foreign import sokol_gp_clib { "sokol_gp_linux_x64_gl_debug.a", "system:GL", "system:dl", "system:pthread" } }
+    else       { foreign import sokol_gp_clib { "sokol_gp_linux_x64_gl_release.a", "system:GL", "system:dl", "system:pthread" } }
 } else {
     #panic("This OS is currently not supported")
 }
