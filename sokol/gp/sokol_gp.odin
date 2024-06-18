@@ -1,7 +1,7 @@
 package sokol_gp
 
 import "core:c"
-import sg "./gfx"
+import sg "../gfx"
 
 SOKOL_DEBUG :: #config(SOKOL_DEBUG, ODIN_DEBUG)
 
@@ -100,20 +100,20 @@ foreign sokol_gp_clib
     reset_blend_mode :: proc() ---
     set_color        :: proc( r, g, b, a : c.float ) ---
     reset_color      :: proc() ---
-    set_image        :: proc(channel : c.int, image : sg.Image)
-    unset_image      :: proc(channel : c.int)
-    reset_image      :: proc(channel : c.int)
-    set_sampler      :: proc(channel : c.int, sampler : sg.Sampler)
-    reset_sampler    :: proc(channel : c.int)
+    set_image        :: proc(channel : c.int, image : sg.Image) ---
+    unset_image      :: proc(channel : c.int) ---
+    reset_image      :: proc(channel : c.int) ---
+    set_sampler      :: proc(channel : c.int, sampler : sg.Sampler) ---
+    reset_sampler    :: proc(channel : c.int) ---
 
     viewport       :: proc(x, y, w, h : c.int) ---
     reset_viewport :: proc() ---
-    scissor        :: proc(x, y, w, h) ---
+    scissor        :: proc(x, y, w, h : c.int) ---
     reset_scissor  :: proc() ---
     reset_state    :: proc() ---
 
     clear                       :: proc() ---
-    draw                        :: proc(primitive_type : Primitive_Type, vertices : Vertex, count : c.uint32_t) ---
+    draw                        :: proc(primitive_type : sg.Primitive_Type, vertices : Vertex, count : c.uint32_t) ---
     draw_points                 :: proc(points : [^]Point, count : c.uint32_t) ---
     draw_point                  :: proc(x, y : c.float) ---
     draw_lines                  :: proc(lines : [^]Line, count : c.uint32_t) ---
@@ -207,8 +207,8 @@ Uniform :: struct {
 
 Textures_Uniform :: struct {
     count    : c.uint32_t,
-    images   : [TEXTURE_SLOTS]sg.image,
-    samplers : [TEXTURE_SLOTS]sg.sampler,
+    images   : [TEXTURE_SLOTS]sg.Image,
+    samplers : [TEXTURE_SLOTS]sg.Sampler,
 }
 
 State :: struct {
