@@ -11,7 +11,7 @@ jobs:
     # NOTE: odin macos and ubuntu releases are zipped twice, so this is bit of a hack.
     # The examples folder also conflicts with the sokol examples, so we just remove it.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
       - uses: ilammy/msvc-dev-cmd@v1
       - if: runner.os == 'Linux'
         name: prepare-linux
@@ -44,6 +44,7 @@ jobs:
           cd sokol
           chmod a+x ./build_clibs_macos.sh
           ./build_clibs_macos.sh
+          ./build_clibs_macos_dylib.sh
           cd ..
       - if: runner.os == 'Windows'
         name: prepare-windows

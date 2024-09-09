@@ -446,7 +446,6 @@ Primitive_Type :: enum i32 {
 
 Filter :: enum i32 {
     DEFAULT,
-    NONE,
     NEAREST,
     LINEAR,
 }
@@ -1064,6 +1063,7 @@ Frame_Stats_Wgpu_Bindings :: struct {
     num_bindgroup_cache_hits : u32,
     num_bindgroup_cache_misses : u32,
     num_bindgroup_cache_collisions : u32,
+    num_bindgroup_cache_invalidates : u32,
     num_bindgroup_cache_hash_vs_key_mismatch : u32,
 }
 
@@ -1223,8 +1223,6 @@ Log_Item :: enum i32 {
     VALIDATE_IMAGEDESC_DYNAMIC_NO_DATA,
     VALIDATE_IMAGEDESC_COMPRESSED_IMMUTABLE,
     VALIDATE_SAMPLERDESC_CANARY,
-    VALIDATE_SAMPLERDESC_MINFILTER_NONE,
-    VALIDATE_SAMPLERDESC_MAGFILTER_NONE,
     VALIDATE_SAMPLERDESC_ANISTROPIC_REQUIRES_LINEAR_FILTERING,
     VALIDATE_SHADERDESC_CANARY,
     VALIDATE_SHADERDESC_SOURCE,
@@ -1454,6 +1452,7 @@ Desc :: struct {
     uniform_buffer_size : c.int,
     max_commit_listeners : c.int,
     disable_validation : bool,
+    d3d11_shader_debugging : bool,
     mtl_force_managed_storage_mode : bool,
     mtl_use_command_buffer_with_retained_references : bool,
     wgpu_disable_bindgroups_cache : bool,
