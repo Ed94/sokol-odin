@@ -7,6 +7,7 @@
 package main
 
 import "base:runtime"
+import "core:c"
 import slog "../../sokol/log"
 import sg "../../sokol/gfx"
 import sapp "../../sokol/app"
@@ -78,9 +79,9 @@ init :: proc "c" () {
                 1 = { step_func = .PER_INSTANCE },
             },
             attrs = {
-                ATTR_vs_pos      = { format = .FLOAT3, buffer_index = 0 },
-                ATTR_vs_color0   = { format = .FLOAT4, buffer_index = 0 },
-                ATTR_vs_inst_pos = { format = .FLOAT3, buffer_index = 1 },
+                ATTR_instancing_pos      = { format = .FLOAT3, buffer_index = 0 },
+                ATTR_instancing_color0   = { format = .FLOAT4, buffer_index = 0 },
+                ATTR_instancing_inst_pos = { format = .FLOAT3, buffer_index = 1 },
             },
         },
         index_type = .UINT16,
@@ -123,7 +124,7 @@ frame :: proc "c" () {
     // update instance data
     sg.update_buffer(state.bind.vertex_buffers[1], {
         ptr = &state.pos,
-        size = u64(state.cur_num_particles * size_of(m.vec3)),
+        size = c.size_t(state.cur_num_particles * size_of(m.vec3)),
     })
 
     // vertex shader uniform data with model-view-projection matrix
@@ -139,7 +140,7 @@ frame :: proc "c" () {
     sg.begin_pass({ action = state.pass_action, swapchain = sglue.swapchain() })
     sg.apply_pipeline(state.pip)
     sg.apply_bindings(state.bind)
-    sg.apply_uniforms(.VS, SLOT_vs_params, { ptr = &vs_params, size = size_of(vs_params) })
+    sg.apply_uniforms(UB_vs_params, { ptr = &vs_params, size = size_of(vs_params) })
     sg.draw(0, 24, state.cur_num_particles)
     sg.end_pass()
     sg.commit()
