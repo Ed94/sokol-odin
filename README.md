@@ -1,3 +1,26 @@
+# Sectr Fork
+
+This is a fork meant to be used with the [SectrPrototype](https://github.com/Ed94/SectrPrototype).
+
+Changes the following:
+
+- Support for hot-reload in sokol's app & gfx libraries  
+- Support for manual execution of apps lifetime:
+
+```c
+SOKOL_APP_API_DECL bool sapp_get_quit_ordered();
+SOKOL_APP_API_DECL void sapp_pre_client_init( const sapp_desc* desc );
+SOKOL_APP_API_DECL void sapp_client_init(void);
+SOKOL_APP_API_DECL bool sapp_pre_client_frame(void);
+SOKOL_APP_API_DECL void sapp_post_client_frame(void);
+SOKOL_APP_API_DECL void sapp_post_client_cleanup(void);
+SOKOL_APP_API_DECL void sapp_client_reload( const sapp_desc_reload* new_callbacks);
+```
+
+- Added sokol_gp
+
+---
+
 [![Odin](https://github.com/floooh/sokol-odin/actions/workflows/main.yml/badge.svg)](https://github.com/floooh/sokol-odin/actions/workflows/main.yml)
 
 Auto-generated [Odin](https://github.com/odin-lang/odin) bindings for the [sokol headers](https://github.com/floooh/sokol).
