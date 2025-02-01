@@ -18,6 +18,9 @@ SOKOL_APP_API_DECL void sapp_client_reload( const sapp_desc_reload* new_callback
 ```
 
 - Added sokol_gp
+- Added custom scripts:
+  - [build_windows.ps1](./build_windows.ps1)
+  - [devshell.ps1](./devshell.ps1)
 
 ---
 
