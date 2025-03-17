@@ -68,7 +68,7 @@ Vs_Params :: struct #align(16) {
     }
 
 */
-@(private)
+@(private="file")
 vs_source_glsl430 := [621]u8 {
     0x23,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x34,0x33,0x30,0x0a,0x0a,0x75,0x6e,
     0x69,0x66,0x6f,0x72,0x6d,0x20,0x76,0x65,0x63,0x34,0x20,0x76,0x73,0x5f,0x70,0x61,
@@ -122,7 +122,7 @@ vs_source_glsl430 := [621]u8 {
     }
 
 */
-@(private)
+@(private="file")
 fs_source_glsl430 := [135]u8 {
     0x23,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x34,0x33,0x30,0x0a,0x0a,0x6c,0x61,
     0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,
@@ -196,7 +196,7 @@ fs_source_glsl430 := [135]u8 {
         return stage_output;
     }
 */
-@(private)
+@(private="file")
 vs_source_hlsl5 := [1238]u8 {
     0x63,0x62,0x75,0x66,0x66,0x65,0x72,0x20,0x76,0x73,0x5f,0x70,0x61,0x72,0x61,0x6d,
     0x73,0x20,0x3a,0x20,0x72,0x65,0x67,0x69,0x73,0x74,0x65,0x72,0x28,0x62,0x30,0x29,
@@ -305,7 +305,7 @@ vs_source_hlsl5 := [1238]u8 {
         return stage_output;
     }
 */
-@(private)
+@(private="file")
 fs_source_hlsl5 := [435]u8 {
     0x73,0x74,0x61,0x74,0x69,0x63,0x20,0x66,0x6c,0x6f,0x61,0x74,0x34,0x20,0x66,0x72,
     0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x73,0x74,0x61,0x74,0x69,0x63,
@@ -385,7 +385,7 @@ fs_source_hlsl5 := [435]u8 {
     }
 
 */
-@(private)
+@(private="file")
 vs_source_metal_macos := [883]u8 {
     0x23,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
     0x73,0x74,0x64,0x6c,0x69,0x62,0x3e,0x0a,0x23,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,
@@ -468,7 +468,7 @@ vs_source_metal_macos := [883]u8 {
     }
 
 */
-@(private)
+@(private="file")
 fs_source_metal_macos := [315]u8 {
     0x23,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
     0x73,0x74,0x64,0x6c,0x69,0x62,0x3e,0x0a,0x23,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,
@@ -500,9 +500,13 @@ shapes_shader_desc :: proc (backend: sg.Backend) -> sg.Shader_Desc {
         desc.vertex_func.entry = "main"
         desc.fragment_func.source = transmute(cstring)&fs_source_glsl430
         desc.fragment_func.entry = "main"
+        desc.attrs[0].base_type = .FLOAT
         desc.attrs[0].glsl_name = "position"
+        desc.attrs[1].base_type = .FLOAT
         desc.attrs[1].glsl_name = "normal"
+        desc.attrs[2].base_type = .FLOAT
         desc.attrs[2].glsl_name = "texcoord"
+        desc.attrs[3].base_type = .FLOAT
         desc.attrs[3].glsl_name = "color0"
         desc.uniform_blocks[0].stage = .VERTEX
         desc.uniform_blocks[0].layout = .STD140
@@ -517,12 +521,16 @@ shapes_shader_desc :: proc (backend: sg.Backend) -> sg.Shader_Desc {
         desc.fragment_func.source = transmute(cstring)&fs_source_hlsl5
         desc.fragment_func.d3d11_target = "ps_5_0"
         desc.fragment_func.entry = "main"
+        desc.attrs[0].base_type = .FLOAT
         desc.attrs[0].hlsl_sem_name = "TEXCOORD"
         desc.attrs[0].hlsl_sem_index = 0
+        desc.attrs[1].base_type = .FLOAT
         desc.attrs[1].hlsl_sem_name = "TEXCOORD"
         desc.attrs[1].hlsl_sem_index = 1
+        desc.attrs[2].base_type = .FLOAT
         desc.attrs[2].hlsl_sem_name = "TEXCOORD"
         desc.attrs[2].hlsl_sem_index = 2
+        desc.attrs[3].base_type = .FLOAT
         desc.attrs[3].hlsl_sem_name = "TEXCOORD"
         desc.attrs[3].hlsl_sem_index = 3
         desc.uniform_blocks[0].stage = .VERTEX
@@ -534,6 +542,10 @@ shapes_shader_desc :: proc (backend: sg.Backend) -> sg.Shader_Desc {
         desc.vertex_func.entry = "main0"
         desc.fragment_func.source = transmute(cstring)&fs_source_metal_macos
         desc.fragment_func.entry = "main0"
+        desc.attrs[0].base_type = .FLOAT
+        desc.attrs[1].base_type = .FLOAT
+        desc.attrs[2].base_type = .FLOAT
+        desc.attrs[3].base_type = .FLOAT
         desc.uniform_blocks[0].stage = .VERTEX
         desc.uniform_blocks[0].layout = .STD140
         desc.uniform_blocks[0].size = 80
